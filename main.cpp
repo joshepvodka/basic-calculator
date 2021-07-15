@@ -3,11 +3,11 @@
 #include <iostream>
 
 #include "calculator.hpp"
+#include "renderer.hpp"
 
 int main() {
 
-
-	math::calculator calc;
+	math::Calculator calc;
 	while (1) {
 		calc.calculate();
 	}
