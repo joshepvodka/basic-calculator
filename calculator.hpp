@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "symbol.hpp"
+#include "token.hpp"
 
 namespace calc {
 	
@@ -14,23 +14,29 @@ namespace calc {
 		Calculator();
 		~Calculator();
 
-		void calculateExpression();
+		void calculate();
+		void to_string();
+		void to_stringRPN();
 
+		inline bool sintaxError() { return m_syntaxError; }
+		
 	private:
-
+		
+		void getExpression();
+		void tokenizeExpression();
+		void flushToken(std::string& str);
+		void preparseExpression();
+		void parseExpression();
+		
+		void processRPN();
+		void getResult(std::vector<Token>& buf, int i);
+		
 		bool m_syntaxError;
 		std::string m_inputExpression;
-		std::vector<Symbol> m_expression;
+		std::vector<Token> m_tokenExpression;
+		std::vector<Token> m_rpnExpression;
 
 		long double m_result;
-
-		void getExpression();
-		void tokenizeIntoSymbols();
-		void flushSymbol(std::string& str);
-		void preprocessSymbols();
-		void calculateSymbols();
-
-	
 	};
 
 }
