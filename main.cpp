@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "calculator.hpp"
-#include "renderer.hpp"
 
 int main() {
 
