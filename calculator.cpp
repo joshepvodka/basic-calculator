@@ -112,8 +112,10 @@ namespace math {
 			}
 
 			if (isOperator(chr)) {
-				flushToken(tokenBuffer);
-				lastToken = op;
+				if(lastToken != op){
+					lastToken = op;
+					flushToken(tokenBuffer);
+				}
 				tokenBuffer += chr;
 				continue;
 			}
