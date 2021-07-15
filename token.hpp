@@ -2,73 +2,84 @@
 #define __TOKEN_H__
 
 #include <inttypes.h>
+#include <string>
 
-extern uint8_t OpPrecedence[];
+namespace math {
 
-enum SymType : uint8_t {
-	null,
-	numeric,
-	op,
-	str,
-	brakets
-};
+	extern uint8_t OpPrecedence[];
 
-enum TokenType : uint8_t {
-	numLiteral,
-	openBrakets,
-	closeBrakets,
-	opPlus,
-	opMinus,
-	opMulti,
-	opDiv,
-	opPower,
-	opSqrt,
-	funcSin,
-	funcCos,
-	funcTan
-};
+	enum SymType : uint8_t {
+		null,
+		numeric,
+		op,
+		str,
+		brakets
+	};
 
-struct Token {
+	enum TokenType : uint8_t {
+		opPlus,
+		opMinus,
+		opMulti,
+		opDiv,
+		opPower,
+		opSqrt,
+		funcSin,
+		funcCos,
+		funcTan,
+		numLiteral,
+		numVar,
+		openBrakets,
+		closeBrakets,
+		symEqual,
+		symSemicolon
+	};
 
-	Token(const long double& val) : type(TokenType::numLiteral), value(val) {}
-	Token(const TokenType& t) : type(t), value(0) {}
+	struct Token {
 
-	TokenType type;
-	long double value;
+		Token(const long double& val) : type(TokenType::numLiteral), value(val) {}
+		Token(const std::string& name) : type(numVar), var(name.c_str()) {}
+		Token(const char* name) : type(numVar), var(name) {}
+		Token(const TokenType& t) : type(t), value(0) {}
 
-};
+		TokenType type;
+		union {
+			long double value;
+			const char* var;
+		};
+	};
 
-static bool tokenIsFunc(const Token& token) {
-	if (token.type == funcSin ||
-		token.type == funcCos ||
-		token.type == funcTan)
-		return true;
-	return false;
+	static bool tokenIsFunc(const Token& token) {
+		if (token.type == funcSin ||
+			token.type == funcCos ||
+			token.type == funcTan)
+			return true;
+		return false;
+	}
+
+	static bool tokenIsOp(const Token& token) {
+		if (token.type == opPlus ||
+			token.type == opMinus ||
+			token.type == opMulti ||
+			token.type == opDiv ||
+			token.type == opPower ||
+			token.type == opSqrt)
+			return true;
+		return false;
+	}
+
+	static bool tokenIsSign(const Token& token) {
+		if (token.type == opPlus ||
+			token.type == opMinus)
+			return true;
+		return false;
+	}
+
+	static bool tokenIsBrakets(const Token& token) {
+		if (token.type == openBrakets ||
+			token.type == closeBrakets)
+			return true;
+		return false;
+	}
+
 }
-
-static bool tokenIsOp(const Token& token) {
-	if (token.type == opPlus  ||
-		token.type == opMinus ||
-		token.type == opMulti ||
-		token.type == opDiv   ||
-		token.type == opPower ||
-		token.type == opSqrt   )
-		return true;
-	return false;
-}
-
-static bool tokenIsSign(const Token& token) {
-	if (token.type == opPlus  ||
-		token.type == opMinus  )
-		return true;
-	return false;
-}
-
-static bool tokenIsBrakets(const Token& token) {
-	if (token.type == openBrakets ||
-		token.type == closeBrakets)
-		return true;
-	return false;
-}
-
 #endif // __TOKEN_H__

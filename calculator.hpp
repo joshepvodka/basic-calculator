@@ -3,26 +3,27 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "token.hpp"
 
-namespace calc {
+namespace math {
 	
-	class Calculator {
+	class calculator {
 
 	public:
-		Calculator();
-		~Calculator();
+		calculator();
+		~calculator();
 
 		void calculate();
 		void to_string();
 		void to_stringRPN();
 
-		inline bool sintaxError() { return m_syntaxError; }
+		inline bool sintax_error() { return m_syntaxError; }
 		
 	private:
 		
-		void getExpression();
+		void getStringExpression();
 		void tokenizeExpression();
 		void flushToken(std::string& str);
 		void preparseExpression();
@@ -31,12 +32,15 @@ namespace calc {
 		void processRPN();
 		void getResult(std::vector<Token>& buf, int i);
 		
+		long double m_result;
+
 		bool m_syntaxError;
 		std::string m_inputExpression;
 		std::vector<Token> m_tokenExpression;
 		std::vector<Token> m_rpnExpression;
 
-		long double m_result;
+		std::unordered_map<const char*, long double> m_variables;
+
 	};
 
 }

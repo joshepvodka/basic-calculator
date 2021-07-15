@@ -1,6 +1,7 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <unordered_map>
 #include <iostream>
 #include <cmath>
 
@@ -9,9 +10,11 @@
 #include "token.hpp"
 #include "lexer.hpp"
 
-namespace calc {
+#define start_over i = -1; continue;
 
-	Calculator::Calculator() {
+namespace math {
+
+	calculator::calculator() {
 
 		m_syntaxError = false;
 		m_inputExpression = std::string();
@@ -20,21 +23,13 @@ namespace calc {
 		m_result = 0;
 	}
 
-
-
-
-
-	Calculator::~Calculator() {
+	calculator::~calculator() {
 		m_tokenExpression.~vector();
 		m_rpnExpression.~vector();
 		m_inputExpression.~basic_string();
 	}
 
-
-
-
-
-	void Calculator::calculate() {
+	void calculator::calculate() {
 
 		m_syntaxError = false;
 		m_inputExpression = std::string();
@@ -42,7 +37,7 @@ namespace calc {
 		m_rpnExpression = std::vector<Token>();
 		m_result = 0;
 
-		getExpression();
+		getStringExpression();
 		tokenizeExpression();
 		if (m_syntaxError) {
 			std::cout << "Syntax Error" << std::endl;
@@ -70,38 +65,30 @@ namespace calc {
 		std::cout << "Result: " << m_result << std::endl;
 	}
 
-
-
-
-
-	void Calculator::getExpression() {
+	void calculator::getStringExpression() {
 		std::getline(std::cin, m_inputExpression);
 		if (m_inputExpression.empty())
-			getExpression();
+			getStringExpression();
 	}
 
-
-
-
-
-	void Calculator::tokenizeExpression() {
+	void calculator::tokenizeExpression() {
 
 		std::string tokenBuffer;
-		SymType lastToken = SymType::null;
+		SymType lastToken = null;
 
 		for (const char& chr : m_inputExpression) {
 			const char* nextChar = &chr+1;
 			if (m_syntaxError)
 				return;
 			
-			if (isblank(chr)) {
+			if (isBlank(chr)) {
 				flushToken(tokenBuffer);
 				continue;
 			}
-
+			
 			if (isSign(chr)) {
-				if (lastToken != SymType::numeric && isNumber(*nextChar)) {
-					lastToken = SymType::numeric;
+				if (lastToken != numeric && isNumber(*nextChar)) {
+					lastToken = numeric;
 					flushToken(tokenBuffer);
 					tokenBuffer += chr;
 					continue;
@@ -109,8 +96,8 @@ namespace calc {
 			}
 			
 			if (isNumber(chr)) {
-				if (lastToken != SymType::numeric) {
-					lastToken = SymType::numeric;
+				if (lastToken != numeric) {
+					lastToken = numeric;
 					flushToken(tokenBuffer);
 				}
 				tokenBuffer += chr;
@@ -119,21 +106,21 @@ namespace calc {
 
 			if (isBrakets(chr)) {
 				flushToken(tokenBuffer);
-				lastToken = SymType::brakets;
+				lastToken = brakets;
 				tokenBuffer += chr;
 				continue;
 			}
 
 			if (isOperator(chr)) {
 				flushToken(tokenBuffer);
-				lastToken = SymType::op;
+				lastToken = op;
 				tokenBuffer += chr;
 				continue;
 			}
 
 			if (isalpha(chr)) {
-				if (lastToken != SymType::str) {
-					lastToken = SymType::str;
+				if (lastToken != str) {
+					lastToken = str;
 					flushToken(tokenBuffer);
 				}
 				tokenBuffer += chr;
@@ -146,15 +133,11 @@ namespace calc {
 		flushToken(tokenBuffer);
 	}
 
-
-
-
-
-	void Calculator::preparseExpression() {
+	void calculator::preparseExpression() {
 		{
 			int i = 0;
 			for (const auto& token : m_tokenExpression) {
-				if (token.type == TokenType::numLiteral)
+				if (token.type == numLiteral)
 					i++;
 			}
 
@@ -177,60 +160,60 @@ namespace calc {
 				if (tokenIsSign(token)) {
 					
 					if (i - 1 >= 0) {
-						if (!(m_tokenExpression[i - 1].type == TokenType::numLiteral || m_tokenExpression[i - 1].type == TokenType::closeBrakets)) {
+						if (!(m_tokenExpression[i - 1].type == numLiteral || m_tokenExpression[i - 1].type == closeBrakets)) {
 
-							if (m_tokenExpression[i + 1].type == TokenType::opSqrt ||
-								m_tokenExpression[i + 1].type == TokenType::openBrakets ||
-								tokenIsFunc(m_tokenExpression[i + 1])) {
+							if (m_tokenExpression[i + 1].type == opSqrt 		||
+								m_tokenExpression[i + 1].type == openBrakets ||
+								m_tokenExpression[i + 1].type == numVar		||
+								tokenIsFunc(m_tokenExpression[i + 1])					) {
 								
 								m_tokenExpression.erase(m_tokenExpression.begin() + i);
-								m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(TokenType::opMulti));
-								if (token.type == TokenType::opMinus) {
+								m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(opMulti));
+								if (token.type == opMinus) {
 									m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(-1));
 								}
 								else m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(1));
-								i = -1;
-								continue;
+								start_over
 							}
-							else if (m_tokenExpression[i + 1].type == TokenType::numLiteral) {
-								if (token.type == TokenType::opMinus) {
+							else
+								if (m_tokenExpression[i + 1].type == numLiteral) {
+									if (token.type == opMinus) {
 									m_tokenExpression[i + 1].value *= -1;
 								}
 									m_tokenExpression.erase(m_tokenExpression.begin() + i);
-									i = -1;
-									continue;
+									start_over
 								}
 						}
 					}
 					else {
-						if (m_tokenExpression[i + 1].type == TokenType::opSqrt ||
-							m_tokenExpression[i + 1].type == TokenType::openBrakets ||
-							tokenIsFunc(m_tokenExpression[i + 1])) {
+						if (m_tokenExpression[i + 1].type == opSqrt 		||
+							m_tokenExpression[i + 1].type == openBrakets ||
+							m_tokenExpression[i + 1].type == numVar 		||
+							tokenIsFunc(m_tokenExpression[i + 1])					) {
 							
 							m_tokenExpression.erase(m_tokenExpression.begin() + i);
-							m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(TokenType::opMulti));
-							if (token.type == TokenType::opMinus) {
+							m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(opMulti));
+							if (token.type == opMinus) {
 								m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(-1));
 							}
 							else m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(1));
-							i = -1;
-							continue;
+							start_over
 						}
-						else if (m_tokenExpression[i + 1].type == TokenType::numLiteral) {
-							if (token.type == TokenType::opMinus) {
+						else
+							if (m_tokenExpression[i + 1].type == numLiteral) {
+								if (token.type == opMinus) {
 								m_tokenExpression[i + 1].value *= -1;
 							}
-								m_tokenExpression.erase(m_tokenExpression.begin() + i);
-								i = -1;
-								continue;
+							m_tokenExpression.erase(m_tokenExpression.begin() + i);
+							start_over
 						}
 					}
 				}
 
 				//implicit multiplication
-				if (token.type == TokenType::numLiteral) {
-					if (m_tokenExpression[i + 1].type == TokenType::opSqrt || m_tokenExpression[i + 1].type == TokenType::openBrakets || tokenIsFunc(m_tokenExpression[i + 1])) {
-						m_tokenExpression.insert(m_tokenExpression.begin() + (i-- + 1), Token(TokenType::opMulti));
+				if (token.type == numLiteral) {
+					if (m_tokenExpression[i + 1].type == opSqrt || m_tokenExpression[i + 1].type == openBrakets || tokenIsFunc(m_tokenExpression[i + 1])) {
+						m_tokenExpression.insert(m_tokenExpression.begin() + (i-- + 1), Token(opMulti));
 						continue;
 					}
 				}
@@ -238,11 +221,7 @@ namespace calc {
 		}
 	}
 
-	
-
-
-
-	void Calculator::flushToken(std::string& tokenStr) {
+	void calculator::flushToken(std::string& tokenStr) {
 
 		if (tokenStr.empty())
 			return;
@@ -261,31 +240,31 @@ namespace calc {
 
 		if (isOperator(tokenStr[0])) {
 			if (tokenStr == "+") {
-				m_tokenExpression.push_back(Token(TokenType::opPlus));
+				m_tokenExpression.push_back(Token(opPlus));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "-") {
-				m_tokenExpression.push_back(Token(TokenType::opMinus));
+				m_tokenExpression.push_back(Token(opMinus));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "*") {
-				m_tokenExpression.push_back(Token(TokenType::opMulti));
+				m_tokenExpression.push_back(Token(opMulti));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "/") {
-				m_tokenExpression.push_back(Token(TokenType::opDiv));
+				m_tokenExpression.push_back(Token(opDiv));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "^") {
-				m_tokenExpression.push_back(Token(TokenType::opPower));
+				m_tokenExpression.push_back(Token(opPower));
 				tokenStr.clear();
 				return;
 			}
@@ -293,38 +272,38 @@ namespace calc {
 
 		if (isalpha(tokenStr[0])) {
 			if (tokenStr == "sqrt") {
-				m_tokenExpression.push_back(Token(TokenType::opSqrt));
+				m_tokenExpression.push_back(Token(opSqrt));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "sin") {
-				m_tokenExpression.push_back(Token(TokenType::funcSin));
+				m_tokenExpression.push_back(Token(funcSin));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "cos") {
-				m_tokenExpression.push_back(Token(TokenType::funcCos));
+				m_tokenExpression.push_back(Token(funcCos));
 				tokenStr.clear();
 				return;
 			}
 
 			if (tokenStr == "tan") {
-				m_tokenExpression.push_back(Token(TokenType::funcTan));
+				m_tokenExpression.push_back(Token(funcTan));
 				tokenStr.clear();
 				return;
 			}
 		}
 
 		if (tokenStr == "(") {
-			m_tokenExpression.push_back(Token(TokenType::openBrakets));
+			m_tokenExpression.push_back(Token(openBrakets));
 			tokenStr.clear();
 			return;
 		}
 
 		if (tokenStr == ")") {
-			m_tokenExpression.push_back(Token(TokenType::closeBrakets));
+			m_tokenExpression.push_back(Token(closeBrakets));
 			tokenStr.clear();
 			return;
 		}
@@ -332,15 +311,11 @@ namespace calc {
 		m_syntaxError = true;
 	}
 
-
-
-
-	
-	void Calculator::parseExpression() {
+	void calculator::parseExpression() {
 		
 		std::stack<Token> opStack;
 		
-		if (m_tokenExpression[0].type == TokenType::numLiteral) {
+		if (m_tokenExpression[0].type == numLiteral) {
 				m_rpnExpression.push_back(m_tokenExpression[0]);
 		}
 		else opStack.push(m_tokenExpression[0]);
@@ -348,17 +323,17 @@ namespace calc {
 		for (int i = 1; i < m_tokenExpression.size(); i++) {
 			Token token = m_tokenExpression[i];
 			
-			if (token.type == TokenType::numLiteral) {
+			if (token.type == numLiteral) {
 				m_rpnExpression.push_back(token);
 				continue;
 			}
 			else {
-				if (token.type == TokenType::openBrakets) {
+				if (token.type == openBrakets) {
 					opStack.push(token);
 					continue;
 				}
 
-				if (token.type == TokenType::opPower) {
+				if (token.type == opPower) {
 					opStack.push(token);
 					continue;
 				}
@@ -368,12 +343,12 @@ namespace calc {
 					continue;
 				}
 				
-				if (token.type == TokenType::closeBrakets) {
-					while (!opStack.empty() && opStack.top().type != TokenType::openBrakets) {
+				if (token.type == closeBrakets) {
+					while (!opStack.empty() && opStack.top().type != openBrakets) {
 						m_rpnExpression.push_back(opStack.top());
 						opStack.pop();
 					}
-					if (!opStack.empty() && opStack.top().type == TokenType::openBrakets) {
+					if (!opStack.empty() && opStack.top().type == openBrakets) {
 						opStack.pop();
 						continue;
 					}
@@ -404,11 +379,7 @@ namespace calc {
 		}
 	}
 
-
-
-
-	
-	void Calculator::processRPN() {
+	void calculator::processRPN() {
 
 		std::vector<Token> buf = m_rpnExpression;
 
@@ -423,8 +394,7 @@ namespace calc {
 		m_result = buf.front().value;
 	}
 
-
-	void Calculator::getResult(std::vector<Token>& buf, int i) {
+	void calculator::getResult(std::vector<Token>& buf, int i) {
 		
 		switch (buf[i].type) {
 		case numLiteral:
@@ -484,60 +454,63 @@ namespace calc {
 			break;
 		}
 	}
-	
 
-	void Calculator::to_string() {
+	void calculator::to_string() {
 
 		std::cout << "Input: ";
 		
 		for (const auto& token : m_tokenExpression) {
 			switch (token.type) {
-			case TokenType::opPlus:
+			case opPlus:
 				std::cout << "+";
 				break;
 
-			case TokenType::opMinus:
+			case opMinus:
 				std::cout << "-";
 				break;
 
-			case TokenType::opMulti:
+			case opMulti:
 				std::cout << "*";
 				break;
 
-			case TokenType::opDiv:
+			case opDiv:
 				std::cout << "/";
 				break;
 
-			case TokenType::opPower:
+			case opPower:
 				std::cout << "^";
 				break;
 
-			case TokenType::opSqrt:
+			case opSqrt:
 				std::cout << "sqrt";
 				break;
 
-			case TokenType::funcSin:
+			case funcSin:
 				std::cout << "sin";
 				break;
 
-			case TokenType::funcCos:
+			case funcCos:
 				std::cout << "cos";
 				break;
 
-			case TokenType::funcTan:
+			case funcTan:
 				std::cout << "tan";
 				break;
-				
-			case TokenType::numLiteral:
-				std::cout << token.value;
-				break;
 
-			case TokenType::openBrakets:
+			case openBrakets:
 				std::cout << "(";
 				break;
 
-			case TokenType::closeBrakets:
+			case closeBrakets:
 				std::cout << ")";
+				break;
+
+			case numLiteral:
+				std::cout << token.value;
+				break;
+
+			case numVar:
+				std::cout << token.var;
 				break;
 			}
 			std::cout << " ";
@@ -545,57 +518,57 @@ namespace calc {
 		std::cout << std::endl;
 	}
 
-	void Calculator::to_stringRPN() {
+	void calculator::to_stringRPN() {
 
 		std::cout << "Parsed Input: ";
 		
 		for (const auto& token : m_rpnExpression) {
 			switch (token.type) {
-			case TokenType::opPlus:
+			case opPlus:
 				std::cout << "+";
 				break;
 
-			case TokenType::opMinus:
+			case opMinus:
 				std::cout << "-";
 				break;
 
-			case TokenType::opMulti:
+			case opMulti:
 				std::cout << "*";
 				break;
 
-			case TokenType::opDiv:
+			case opDiv:
 				std::cout << "/";
 				break;
 
-			case TokenType::opPower:
+			case opPower:
 				std::cout << "^";
 				break;
 
-			case TokenType::opSqrt:
+			case opSqrt:
 				std::cout << "sqrt";
 				break;
 
-			case TokenType::funcSin:
+			case funcSin:
 				std::cout << "sin";
 				break;
 
-			case TokenType::funcCos:
+			case funcCos:
 				std::cout << "cos";
 				break;
 
-			case TokenType::funcTan:
+			case funcTan:
 				std::cout << "tan";
 				break;
 				
-			case TokenType::numLiteral:
+			case numLiteral:
 				std::cout << token.value;
 				break;
 
-			case TokenType::openBrakets:
+			case openBrakets:
 				std::cout << "(";
 				break;
 
-			case TokenType::closeBrakets:
+			case closeBrakets:
 				std::cout << ")";
 				break;
 			}
@@ -603,4 +576,7 @@ namespace calc {
 		}
 		std::cout << std::endl;
 	}
+
 }
+
+#undef start_over

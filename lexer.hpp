@@ -3,7 +3,7 @@
 
 #include <ctype.h>
 
-bool isOperator(const char& chr) {
+static bool isOperator(const char& chr) {
 	if (chr == '+' ||
 		chr == '-' ||
 		chr == '*' ||
@@ -32,6 +32,13 @@ static bool isBrakets(const char& chr) {
 
 static bool isNumber(const char& chr) {
 	if (isdigit(chr) || chr == '.')
+		return true;
+	return false;
+}
+
+static bool isBlank(const char& chr) {
+	if (chr == ','		||
+		isblank(chr)	)
 		return true;
 	return false;
 }

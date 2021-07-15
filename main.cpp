@@ -1,7 +1,5 @@
 #include <string>
-#include <sstream>
-#include <cctype>
-#include <vector>
+#include <array>
 #include <iostream>
 
 #include "calculator.hpp"
@@ -9,10 +7,9 @@
 int main() {
 
 
-	calc::Calculator calculator;
-
+	math::calculator calc;
 	while (1) {
-		calculator.calculate();
+		calc.calculate();
 	}
 	
 	return 0;
