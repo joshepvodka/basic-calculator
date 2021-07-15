@@ -9,11 +9,11 @@
 
 namespace math {
 	
-	class calculator {
+	class Calculator {
 
 	public:
-		calculator();
-		~calculator();
+		Calculator();
+		~Calculator();
 
 		void calculate();
 		void to_string();

@@ -14,7 +14,7 @@
 
 namespace math {
 
-	calculator::calculator() {
+	Calculator::Calculator() {
 
 		m_syntaxError = false;
 		m_inputExpression = std::string();
@@ -23,13 +23,13 @@ namespace math {
 		m_result = 0;
 	}
 
-	calculator::~calculator() {
+	Calculator::~Calculator() {
 		m_tokenExpression.~vector();
 		m_rpnExpression.~vector();
 		m_inputExpression.~basic_string();
 	}
 
-	void calculator::calculate() {
+	void Calculator::calculate() {
 
 		m_syntaxError = false;
 		m_inputExpression = std::string();
@@ -65,13 +65,13 @@ namespace math {
 		std::cout << "Result: " << m_result << std::endl;
 	}
 
-	void calculator::getStringExpression() {
+	void Calculator::getStringExpression() {
 		std::getline(std::cin, m_inputExpression);
 		if (m_inputExpression.empty())
 			getStringExpression();
 	}
 
-	void calculator::tokenizeExpression() {
+	void Calculator::tokenizeExpression() {
 
 		std::string tokenBuffer;
 		SymType lastToken = null;
@@ -133,7 +133,7 @@ namespace math {
 		flushToken(tokenBuffer);
 	}
 
-	void calculator::preparseExpression() {
+	void Calculator::preparseExpression() {
 		{
 			int i = 0;
 			for (const auto& token : m_tokenExpression) {
@@ -221,7 +221,7 @@ namespace math {
 		}
 	}
 
-	void calculator::flushToken(std::string& tokenStr) {
+	void Calculator::flushToken(std::string& tokenStr) {
 
 		if (tokenStr.empty())
 			return;
@@ -311,7 +311,7 @@ namespace math {
 		m_syntaxError = true;
 	}
 
-	void calculator::parseExpression() {
+	void Calculator::parseExpression() {
 		
 		std::stack<Token> opStack;
 		
@@ -379,7 +379,7 @@ namespace math {
 		}
 	}
 
-	void calculator::processRPN() {
+	void Calculator::processRPN() {
 
 		std::vector<Token> buf = m_rpnExpression;
 
@@ -394,7 +394,7 @@ namespace math {
 		m_result = buf.front().value;
 	}
 
-	void calculator::getResult(std::vector<Token>& buf, int i) {
+	void Calculator::getResult(std::vector<Token>& buf, int i) {
 		
 		switch (buf[i].type) {
 		case numLiteral:
@@ -455,7 +455,7 @@ namespace math {
 		}
 	}
 
-	void calculator::to_string() {
+	void Calculator::to_string() {
 
 		std::cout << "Input: ";
 		
@@ -518,7 +518,7 @@ namespace math {
 		std::cout << std::endl;
 	}
 
-	void calculator::to_stringRPN() {
+	void Calculator::to_stringRPN() {
 
 		std::cout << "Parsed Input: ";
 		
