@@ -67,7 +67,7 @@ namespace calc {
 			std::cout << "Syntax Error" << std::endl;
 			return;
 		}
-		std::cout << m_result << std::endl;
+		std::cout << "Result: " << m_result << std::endl;
 	}
 
 
@@ -166,26 +166,36 @@ namespace calc {
 
 
 		for (int i = 0; i < m_tokenExpression.size(); i++) {
-			
-			if ((i + 1) < m_tokenExpression.size()) {
+			if (i - 1 >= 0)
+				Token lastToken = m_tokenExpression[i - 1];
+			if (i + 1 < m_tokenExpression.size())
+				Token nextToken = m_tokenExpression[i + 1];
+			Token token = m_tokenExpression[i];
 
+			if ((i + 1) < m_tokenExpression.size()) {
 				//fixing signs
-				if (tokenIsSign(m_tokenExpression[i])) {
+				if (tokenIsSign(token)) {
+					
 					if (i - 1 >= 0) {
-						if (!(m_tokenExpression[i - 1].type == TokenType::numLiteral ||
-							m_tokenExpression[i - 1].type == TokenType::closeBrakets)) {
+						if (!(m_tokenExpression[i - 1].type == TokenType::numLiteral || m_tokenExpression[i - 1].type == TokenType::closeBrakets)) {
 
 							if (m_tokenExpression[i + 1].type == TokenType::opSqrt ||
 								m_tokenExpression[i + 1].type == TokenType::openBrakets ||
 								tokenIsFunc(m_tokenExpression[i + 1])) {
-								m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(0));
+								
+								m_tokenExpression.erase(m_tokenExpression.begin() + i);
+								m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(TokenType::opMulti));
+								if (token.type == TokenType::opMinus) {
+									m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(-1));
+								}
+								else m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(1));
 								i = -1;
 								continue;
 							}
 							else if (m_tokenExpression[i + 1].type == TokenType::numLiteral) {
-								if (m_tokenExpression[i].type == TokenType::opMinus) {
+								if (token.type == TokenType::opMinus) {
 									m_tokenExpression[i + 1].value *= -1;
-							}
+								}
 									m_tokenExpression.erase(m_tokenExpression.begin() + i);
 									i = -1;
 									continue;
@@ -196,12 +206,18 @@ namespace calc {
 						if (m_tokenExpression[i + 1].type == TokenType::opSqrt ||
 							m_tokenExpression[i + 1].type == TokenType::openBrakets ||
 							tokenIsFunc(m_tokenExpression[i + 1])) {
-							m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(0));
+							
+							m_tokenExpression.erase(m_tokenExpression.begin() + i);
+							m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(TokenType::opMulti));
+							if (token.type == TokenType::opMinus) {
+								m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(-1));
+							}
+							else m_tokenExpression.insert(m_tokenExpression.begin() + i, Token(1));
 							i = -1;
 							continue;
 						}
 						else if (m_tokenExpression[i + 1].type == TokenType::numLiteral) {
-							if (m_tokenExpression[i].type == TokenType::opMinus) {
+							if (token.type == TokenType::opMinus) {
 								m_tokenExpression[i + 1].value *= -1;
 							}
 								m_tokenExpression.erase(m_tokenExpression.begin() + i);
@@ -212,7 +228,7 @@ namespace calc {
 				}
 
 				//implicit multiplication
-				if (m_tokenExpression[i].type == TokenType::numLiteral) {
+				if (token.type == TokenType::numLiteral) {
 					if (m_tokenExpression[i + 1].type == TokenType::opSqrt || m_tokenExpression[i + 1].type == TokenType::openBrakets || tokenIsFunc(m_tokenExpression[i + 1])) {
 						m_tokenExpression.insert(m_tokenExpression.begin() + (i-- + 1), Token(TokenType::opMulti));
 						continue;
@@ -398,8 +414,10 @@ namespace calc {
 
 		while (buf.size() != 1) {
 			for (int i = 0; i < buf.size(); i++) {
-				if (buf[i].type != numLiteral)
+				if (buf[i].type != numLiteral) {
 					getResult(buf, i);
+					break;
+				}
 			}
 		}
 		m_result = buf.front().value;
@@ -470,6 +488,8 @@ namespace calc {
 
 	void Calculator::to_string() {
 
+		std::cout << "Input: ";
+		
 		for (const auto& token : m_tokenExpression) {
 			switch (token.type) {
 			case TokenType::opPlus:
@@ -527,6 +547,8 @@ namespace calc {
 
 	void Calculator::to_stringRPN() {
 
+		std::cout << "Parsed Input: ";
+		
 		for (const auto& token : m_rpnExpression) {
 			switch (token.type) {
 			case TokenType::opPlus:
