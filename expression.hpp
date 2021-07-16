@@ -17,7 +17,7 @@ namespace math {
 		
 		inline Token& operator[] (const int i) { return m_tokens[i]; }
 
-		inline const Token& peek(const int i) const { return (i < 0 || i > m_tokens.size() ? Token() : m_tokens[i]); }
+		inline const Token& peek(const int i) const { return (i < 0 || i >= m_tokens.size() ? Token() : m_tokens[i]); }
 
 		inline const Token& operator() (const int i) const { return (i < 0 || i > m_tokens.size() ? Token() : m_tokens[i]); }
 

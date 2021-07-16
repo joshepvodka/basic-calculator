@@ -251,31 +251,28 @@ namespace math {
 
 	void Calculator::preparseExpression() {
 		
-		{	//expression isnt valid if its just 2 or more number;
-			//"1 1" is not valid; "1" is valid;
+		//expression isnt valid if its just 2 or more number;
+		//"1 1" is not valid; "1" is valid;
+		for (const auto& expr : m_tokenExpressions) {
 			int i = 0;
-			for(const auto& expr : m_tokenExpressions){
-				for (const auto& token : expr) {
-					if (token.type == numLiteral)
+			for (const auto& token : expr) {
+				if (token.type == numLiteral)
 					i++;
-				}
+			}
 
-				if ((i > 1 && i == expr.size()) || !i) {
-					m_syntaxError = true;
-					return;
-				}
+			if ((i > 1 && i == expr.size()) || !i) {
+				m_syntaxError = true;
+				return;
 			}
 		}
 
 		for(auto& expr : m_tokenExpressions){
-			for (int i = 0; i < expr.size()-1; i++) {
+			for (int i = expr.size(); i > -1; i--) {
+				parseSigns(expr, i);
+			}
 
-				if(parseSigns(expr, i)){
-					i = -1;
-					continue;
-				}
-
-				if(parseImplicitMultiplication(expr, i)){
+			for (int i = 0; i < expr.size() - 1; i++) {
+				if (parseImplicitMultiplication(expr, i)) {
 					i = -1;
 					continue;
 				}
@@ -291,51 +288,26 @@ namespace math {
 		const Token nextToken = expr.peek(i+1);
 
 		if (tokenIsSign(currentToken)) {
-			if (i - 1 >= 0) {
-				if (!(lastToken.type == numLiteral || lastToken.type == closeBrakets)) {
-					if (nextToken.type == opSqrt 		||
-						nextToken.type == openBrakets ||
-						nextToken.type == numVar		||
-						tokenIsFunc(nextToken)		) {
 
-						expr.erase(expr.begin() + i);
-						expr.insert(expr.begin() + i, Token(opMulti));
+			if (!(lastToken.type == numLiteral || lastToken.type == closeBrakets)) {
+				if (nextToken.type == opSqrt		||
+					nextToken.type == openBrakets	||
+					nextToken.type == numVar		||
+					tokenIsFunc(nextToken)			) {
 
-						if (currentToken.type == opMinus) {
-							expr.insert(expr.begin() + i, Token(-1));
-						} 
-						else 
-							expr.insert(expr.begin() + i, Token(1));
-						return true;
-					}
-					else if (nextToken.type == numLiteral) {
-						if (currentToken.type == opMinus) {
-							expr[i + 1].value *= -1;
-						}
-						expr.erase(expr.begin() + i);
-						return true;
-					}
-				}
-			} else {
-				if (nextToken.type == opSqrt 		||
-					nextToken.type == openBrakets ||
-					nextToken.type == numVar 		||
-					tokenIsFunc(nextToken)		) {
-					
 					expr.erase(expr.begin() + i);
 					expr.insert(expr.begin() + i, Token(opMulti));
 
-					if (currentToken.type == opMinus) {
+					if (currentToken.type == opMinus)
 						expr.insert(expr.begin() + i, Token(-1));
-					}
-					else 
+					else
 						expr.insert(expr.begin() + i, Token(1));
 					return true;
 				}
-				else if (nextToken.type == numLiteral) {
-					if (currentToken.type == opMinus) {
+				else
+				if (nextToken.type == numLiteral) {
+					if (currentToken.type == opMinus)
 						expr[i + 1].value *= -1;
-					}
 					expr.erase(expr.begin() + i);
 					return true;
 				}
