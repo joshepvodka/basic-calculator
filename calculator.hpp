@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __CALCULATOR_H__
 #define __CALCULATOR_H__
 
@@ -5,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include "expression.hpp"
 #include "token.hpp"
 
 namespace math {
@@ -26,25 +28,25 @@ namespace math {
 		void getStringExpression();
 		
 		void tokenizeExpression();
-		void flushToken(std::vector<Token>& arr, std::string& str);
+		void flushToken(Expression& arr, std::string& str);
 		
 		void preparseExpression();
 		void parseExpression();
-		bool parseSigns(std::vector<Token>& expr, int& i);
-		bool parseImplicitMultiplication(std::vector<Token>& expr, int& i);
+		bool parseSigns(Expression& expr, int& i);
+		bool parseImplicitMultiplication(Expression& expr, int& i);
 		
 		void processRPN();
-		void getResult(std::vector<Token>& buf, int i);
+		void getResult(Expression& buf, int i);
 		
-		void to_string(const std::vector<Token>& expr);
-		void to_stringRPN(const std::vector<Token>& expr);
+		void to_string(const Expression& expr);
+		void to_stringRPN(const Expression& expr);
 
 		std::vector<long double> m_results;
 
 		bool m_syntaxError;
 		std::string m_inputExpression;
-		std::vector<std::vector<Token>> m_tokenExpressions;
-		std::vector<std::vector<Token>> m_rpnExpressions;
+		std::vector<Expression> m_tokenExpressions;
+		std::vector<Expression> m_rpnExpressions;
 
 		std::unordered_map<const char*, long double> m_variables;
 

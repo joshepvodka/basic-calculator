@@ -7,6 +7,7 @@
 
 #include "calculator.hpp"
 
+#include "expression.hpp"
 #include "token.hpp"
 #include "lexer.hpp"
 
@@ -28,8 +29,8 @@ namespace math {
 	void Calculator::reset() {
 		m_syntaxError = false;
 		m_inputExpression = std::string();
-		m_tokenExpressions = std::vector<std::vector<Token>>();
-		m_rpnExpressions = std::vector<std::vector<Token>>();
+		m_tokenExpressions = std::vector<Expression>();
+		m_rpnExpressions = std::vector<Expression>();
 		m_results = std::vector<long double>();
 	}
 
@@ -77,7 +78,7 @@ namespace math {
 	void Calculator::tokenizeExpression() {
 
 		std::string tokenBuffer;
-		std::vector<Token> expressionBuffer;
+		Expression expressionBuffer;
 
 		SymType lastToken = null;
 
@@ -142,7 +143,7 @@ namespace math {
 			m_tokenExpressions.push_back(expressionBuffer);
 	}
 
-	void Calculator::flushToken(std::vector<Token>& expr, std::string& str) {
+	void Calculator::flushToken(Expression& expr, std::string& str) {
 
 		if (str.empty())
 			return;
@@ -284,7 +285,7 @@ namespace math {
 		}
 	}
 
-	bool Calculator::parseSigns(std::vector<Token>& expr, int& i) {
+	bool Calculator::parseSigns(Expression& expr, int& i) {
 
 		//make -----1 work
 		if (tokenIsSign(expr[i])) {
@@ -341,7 +342,7 @@ namespace math {
 		return false;
 	}
 
-	bool Calculator::parseImplicitMultiplication(std::vector<Token>& expr, int& i) {
+	bool Calculator::parseImplicitMultiplication(Expression& expr, int& i) {
 
 		//make 2sin90 or 2(1) or 2x possible
 		if (expr[i].type == numLiteral) {
@@ -356,7 +357,7 @@ namespace math {
 	void Calculator::parseExpression() {
 		
 		std::stack<Token> opStack;
-		std::vector<Token> rpnBuffer;
+		Expression rpnBuffer;
 
 		for(const auto& expr : m_tokenExpressions) {
 
@@ -440,7 +441,7 @@ namespace math {
 		}
 	}
 
-	void Calculator::getResult(std::vector<Token>& expr, int i) {
+	void Calculator::getResult(Expression& expr, int i) {
 		
 		switch (expr[i].type) {
 		case numLiteral:
@@ -501,7 +502,7 @@ namespace math {
 		}
 	}
 
-	void Calculator::to_string(const std::vector<Token>& expr) {
+	void Calculator::to_string(const Expression& expr) {
 
 		std::cout << "Input: ";
 		
@@ -564,7 +565,7 @@ namespace math {
 		std::cout << std::endl;
 	}
 
-	void Calculator::to_stringRPN(const std::vector<Token>& expr) {
+	void Calculator::to_stringRPN(const Expression& expr) {
 
 		std::cout << "Parsed Input: ";
 		
