@@ -118,10 +118,8 @@ namespace math {
 			}
 
 			if (isOperator(chr)) {
-				if(lastToken != op){
-					flushToken(expressionBuffer, tokenBuffer);
-					lastToken = op;
-				}
+				flushToken(expressionBuffer, tokenBuffer);
+				lastToken = op;
 				tokenBuffer += chr;
 				continue;
 			}
@@ -288,26 +286,30 @@ namespace math {
 	bool Calculator::parseSigns(Expression& expr, int& i) {
 
 		//make -----1 work
-		if (tokenIsSign(expr[i])) {
+		const Token lastToken = expr.peek(i-1);
+		const Token currentToken = expr.peek(i);
+		const Token nextToken = expr.peek(i+1);
+
+		if (tokenIsSign(currentToken)) {
 			if (i - 1 >= 0) {
-				if (!(expr[i - 1].type == numLiteral || expr[i - 1].type == closeBrakets)) {
-					if (expr[i + 1].type == opSqrt 		||
-						expr[i + 1].type == openBrakets ||
-						expr[i + 1].type == numVar		||
-						tokenIsFunc(expr[i + 1])		) {
+				if (!(lastToken.type == numLiteral || lastToken.type == closeBrakets)) {
+					if (nextToken.type == opSqrt 		||
+						nextToken.type == openBrakets ||
+						nextToken.type == numVar		||
+						tokenIsFunc(nextToken)		) {
 
 						expr.erase(expr.begin() + i);
 						expr.insert(expr.begin() + i, Token(opMulti));
 
-						if (expr[i].type == opMinus) {
+						if (currentToken.type == opMinus) {
 							expr.insert(expr.begin() + i, Token(-1));
 						} 
 						else 
 							expr.insert(expr.begin() + i, Token(1));
 						return true;
 					}
-					else if (expr[i + 1].type == numLiteral) {
-						if (expr[i].type == opMinus) {
+					else if (nextToken.type == numLiteral) {
+						if (currentToken.type == opMinus) {
 							expr[i + 1].value *= -1;
 						}
 						expr.erase(expr.begin() + i);
@@ -315,23 +317,23 @@ namespace math {
 					}
 				}
 			} else {
-				if (expr[i + 1].type == opSqrt 		||
-					expr[i + 1].type == openBrakets ||
-					expr[i + 1].type == numVar 		||
-					tokenIsFunc(expr[i + 1])		) {
+				if (nextToken.type == opSqrt 		||
+					nextToken.type == openBrakets ||
+					nextToken.type == numVar 		||
+					tokenIsFunc(nextToken)		) {
 					
 					expr.erase(expr.begin() + i);
 					expr.insert(expr.begin() + i, Token(opMulti));
 
-					if (expr[i].type == opMinus) {
+					if (currentToken.type == opMinus) {
 						expr.insert(expr.begin() + i, Token(-1));
 					}
 					else 
 						expr.insert(expr.begin() + i, Token(1));
 					return true;
 				}
-				else if (expr[i + 1].type == numLiteral) {
-					if (expr[i].type == opMinus) {
+				else if (nextToken.type == numLiteral) {
+					if (currentToken.type == opMinus) {
 						expr[i + 1].value *= -1;
 					}
 					expr.erase(expr.begin() + i);
