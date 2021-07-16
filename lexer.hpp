@@ -8,7 +8,9 @@ static bool isOperator(const char& chr) {
 		chr == '-' ||
 		chr == '*' ||
 		chr == '/' ||
-		chr == '^') {
+		chr == '^' ||
+		chr == '=' ||
+		chr == ';') {
 		return true;
 	}
 	return false;

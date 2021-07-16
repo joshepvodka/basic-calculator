@@ -16,28 +16,35 @@ namespace math {
 		~Calculator();
 
 		void calculate();
-		void to_string();
-		void to_stringRPN();
 
 		inline bool sintax_error() { return m_syntaxError; }
 		
 	private:
 		
+		void reset();
+
 		void getStringExpression();
+		
 		void tokenizeExpression();
-		void flushToken(std::string& str);
+		void flushToken(std::vector<Token>& arr, std::string& str);
+		
 		void preparseExpression();
 		void parseExpression();
+		bool parseSigns(std::vector<Token>& expr, int& i);
+		bool parseImplicitMultiplication(std::vector<Token>& expr, int& i);
 		
 		void processRPN();
 		void getResult(std::vector<Token>& buf, int i);
 		
-		long double m_result;
+		void to_string(const std::vector<Token>& expr);
+		void to_stringRPN(const std::vector<Token>& expr);
+
+		std::vector<long double> m_results;
 
 		bool m_syntaxError;
 		std::string m_inputExpression;
-		std::vector<Token> m_tokenExpression;
-		std::vector<Token> m_rpnExpression;
+		std::vector<std::vector<Token>> m_tokenExpressions;
+		std::vector<std::vector<Token>> m_rpnExpressions;
 
 		std::unordered_map<const char*, long double> m_variables;
 
