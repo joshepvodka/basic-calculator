@@ -32,9 +32,11 @@ namespace math {
 		
 		void preparseExpression();
 		void parseExpression();
+		
 		bool parseSigns(Expression& expr, int& i);
 		bool parseImplicitMultiplication(Expression& expr, int& i);
-		
+		bool parseStatements(const Expression& expr);
+			
 		void processRPN();
 		void getResult(Expression& buf, int i);
 		

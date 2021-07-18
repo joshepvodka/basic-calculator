@@ -7,11 +7,17 @@
 
 namespace math {
 
+	enum ExprType : uint8_t {
+		tUndef,
+		tExpr,
+		tVarDef
+	};
+	
 	class Expression {
 
 	public:
-		Expression() {}
-		~Expression() {}
+		Expression() : type(tUndef), m_tokens(std::vector<Token>()) {}
+		~Expression() { m_tokens.~vector(); }
 
 		inline const Token& operator[] (const int i) const  { return (i < 0 || i > m_tokens.size() ? Token() : m_tokens[i]); }
 		
@@ -45,8 +51,9 @@ namespace math {
 		
 		inline Token& back()  { return m_tokens.back(); }
 
+		uint8_t type;
+		
 	private:
-
 		std::vector<Token> m_tokens;
 
 	};

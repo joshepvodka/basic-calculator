@@ -4,6 +4,7 @@
 
 #include "calculator.hpp"
 #include "renderer.hpp"
+#include "token.hpp"
 
 int main() {
 
