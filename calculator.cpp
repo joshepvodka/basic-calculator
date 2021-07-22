@@ -284,13 +284,13 @@ namespace math {
 				}
 			}
 		}
-		/*
+		
 		for (auto& expr : m_tokenExpressions) {
 			if (parseStatements(expr)) {
 				m_syntaxError = true;
 				return;
 			}
-		}*/
+		}
 	}
 
 	bool Calculator::parseSigns(Expression& expr, int& i) {
@@ -343,23 +343,12 @@ namespace math {
 
 	bool Calculator::parseStatements(const Expression& expr) {
 
-		int c = 0, i = 0, e = 0;
-		for (const auto& token : expr) {
-			if (token.type == symEqual) {
-				c++;
-				e = i;
-			}
-			i++;
-		}
-
-		if (c == 1 && expr.size() == 3) {
-			const Token lastToken = expr.peek(e - 1);
-			const Token nextToken = expr.peek(e + 1);
-			if (lastToken.type == numVar && nextToken.type == numLiteral) {
-				expr.type == tVarDef;
-				std::cout << lastToken.var;
-				return false;
-			}
+		const Token lastToken = expr.peek(0);
+		const Token nextToken = expr.peek(2);
+		if (lastToken.type == numVar && nextToken.type == numLiteral) {
+			expr.type == variableDef;
+			std::cout << lastToken.var;
+			return false;
 		}
 		return true;
 
@@ -371,7 +360,10 @@ namespace math {
 		Expression rpnBuffer;
 
 		for (auto& expr : m_tokenExpressions) {
-			
+
+			if (!(expr.type == arithmeticExpr || expr.type == algebraicExpr))
+				continue;
+
 			if (expr[0].type == numLiteral) {
 				rpnBuffer.push_back(expr[0]);
 			}

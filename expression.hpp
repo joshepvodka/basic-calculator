@@ -8,24 +8,25 @@
 namespace math {
 
 	enum ExprType : uint8_t {
-		tUndef,
-		tExpr,
-		tVarDef
+		undefExpr,
+		arithmeticExpr,
+		algebraicExpr,
+		variableDef
 	};
 	
 	class Expression {
 
 	public:
-		Expression() : type(tUndef), m_tokens(std::vector<Token>()) {}
+		Expression() : type(undefExpr), m_tokens(std::vector<Token>()) {}
 		~Expression() { m_tokens.~vector(); }
 
-		inline const Token& operator[] (const int i) const  { return (i < 0 || i > m_tokens.size() ? Token() : m_tokens[i]); }
+		inline const Token& operator[] (const int i) const  { return (i < 0 || i > m_tokens.size() ? Token(tNull) : m_tokens[i]); }
 		
 		inline Token& operator[] (const int i) { return m_tokens[i]; }
 
-		inline const Token& peek(const int i) const { return (i < 0 || i >= m_tokens.size() ? Token() : m_tokens[i]); }
+		inline Token peek(const int i) const { return (i < 0 || i >= m_tokens.size() || m_tokens.size() == 0 ? Token() : m_tokens[i]); }
 
-		inline const Token& operator() (const int i) const { return (i < 0 || i > m_tokens.size() ? Token() : m_tokens[i]); }
+		inline Token operator() (const int i) const { return (i < 0 || i >= m_tokens.size() || m_tokens.size() == 0 ? Token() : m_tokens[i]); }
 
 		inline void push_back(const Token& token) { m_tokens.push_back(token); }
 
